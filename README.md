@@ -23,3 +23,9 @@
 * This implementation uses SDL_MixAudioFormat for mixing for simplicity. It's noted "Do not use this function for mixing together more than two streams of sample data". While only playing 1 music removes a lot of these issues, if you need something more powerful you should write your own mixing function.
 * Music cannot be mixed with this implementation
 * This implementation ONLY plays WAV files, and they must all be of the same format, see audio.h to set the format, stereo vs mono etc... No conversion
+
+## Resources
+
+* I made this project as a more modern version of https://gist.github.com/armornick/3447121
+* https://davidgow.net/handmadepenguin/ch7.html
+* http://rerwarwar.weebly.com/sdl2-audio.html
