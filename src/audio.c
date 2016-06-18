@@ -22,7 +22,7 @@
 #include <SDL2/SDL.h>
 #include "audio.h"
 
-static GlobalSound * gSound;
+static GlobalAudioDevice * gDevice;
 
 void playSound(char * filename, int volume)
 {
@@ -30,10 +30,10 @@ void playSound(char * filename, int volume)
 
     new = createSound(filename, 0, volume);
 
-    SDL_LockAudioDevice(gSound->device);
-    addSound((Sound *) (gSound->want).userdata, new);
+    SDL_LockAudioDevice(gDevice->device);
+    addSound((Sound *) (gDevice->want).userdata, new);
 
-    SDL_UnlockAudioDevice(gSound->device);
+    SDL_UnlockAudioDevice(gDevice->device);
 }
 
 void playMusic(char * filename, int volume)
@@ -46,8 +46,8 @@ void playMusic(char * filename, int volume)
     new = createSound(filename, 1, volume);
 
     /* Lock callback function */
-    SDL_LockAudioDevice(gSound->device);
-    global = ((Sound *) (gSound->want).userdata)->next;
+    SDL_LockAudioDevice(gDevice->device);
+    global = ((Sound *) (gDevice->want).userdata)->next;
 
     /* Find any existing musics, 0, 1 or 2 */
     while(global != NULL)
@@ -72,32 +72,32 @@ void playMusic(char * filename, int volume)
         global = global->next;
     }
 
-    addSound((Sound *) (gSound->want).userdata, new);
+    addSound((Sound *) (gDevice->want).userdata, new);
 
-    SDL_UnlockAudioDevice(gSound->device);
+    SDL_UnlockAudioDevice(gDevice->device);
 }
 
 void initAudio()
 {
     Sound * global;
-    gSound = calloc(1, sizeof(GlobalSound));
+    gDevice = calloc(1, sizeof(GlobalAudioDevice));
 
-    if(gSound == NULL)
+    if(gDevice == NULL)
     {
         fprintf(stderr, "[%s: %d]Fatal Error: Memory c-allocation error\n", __FILE__, __LINE__);
         return;
     }
 
-    SDL_memset(&(gSound->want), 0, sizeof(gSound->want));
+    SDL_memset(&(gDevice->want), 0, sizeof(gDevice->want));
 
-    (gSound->want).freq = AUDIO_FREQUENCY;
-    (gSound->want).format = AUDIO_FORMAT;
-    (gSound->want).channels = AUDIO_CHANNELS;
-    (gSound->want).samples = AUDIO_SAMPLES;
-    (gSound->want).callback = audioCallback;
-    (gSound->want).userdata = calloc(1, sizeof(Sound));
+    (gDevice->want).freq = AUDIO_FREQUENCY;
+    (gDevice->want).format = AUDIO_FORMAT;
+    (gDevice->want).channels = AUDIO_CHANNELS;
+    (gDevice->want).samples = AUDIO_SAMPLES;
+    (gDevice->want).callback = audioCallback;
+    (gDevice->want).userdata = calloc(1, sizeof(Sound));
 
-    global = (gSound->want).userdata;
+    global = (gDevice->want).userdata;
     global->buffer = NULL;
 
     if(global == NULL)
@@ -109,27 +109,27 @@ void initAudio()
     global->next = NULL;
 
     /* want.userdata = new; */
-    if((gSound->device = SDL_OpenAudioDevice(NULL, 0, &(gSound->want), NULL, SDL_AUDIO_ALLOW_ANY_CHANGE)) == 0)
+    if((gDevice->device = SDL_OpenAudioDevice(NULL, 0, &(gDevice->want), NULL, SDL_AUDIO_ALLOW_ANY_CHANGE)) == 0)
     {
         fprintf(stderr, "[%s: %d]Warning: failed to open audio device: %s\n", __FILE__, __LINE__, SDL_GetError());
     }
     else
     {
         /* Unpause active audio stream */
-        SDL_PauseAudioDevice(gSound->device, 0);
+        SDL_PauseAudioDevice(gDevice->device, 0);
     }
 }
 
 void endAudio()
 {
-    SDL_PauseAudioDevice(gSound->device, 1);
+    SDL_PauseAudioDevice(gDevice->device, 1);
 
-    freeSound((Sound *) (gSound->want).userdata);
+    freeSound((Sound *) (gDevice->want).userdata);
 
     /* Close down audio */
-    SDL_CloseAudioDevice(gSound->device);
+    SDL_CloseAudioDevice(gDevice->device);
 
-    free(gSound);
+    free(gDevice);
 }
 
 Sound * createSound(char * filename, uint8_t loop, int volume)

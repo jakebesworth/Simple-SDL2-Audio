@@ -72,15 +72,14 @@ typedef struct sound
 } Sound;
 
 /*
- * Definition for the game global variables
- * Probably needs a better home
+ * Definition for the game global sound device
  *
  */
-typedef struct globalSound
+typedef struct globalAudioDevice
 {
     SDL_AudioDeviceID device;
     SDL_AudioSpec want;
-} GlobalSound;
+} GlobalAudioDevice;
 
 /*  
  * Add a sound to the end of the queue
