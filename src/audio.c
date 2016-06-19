@@ -235,17 +235,15 @@ void initAudio()
 
 void endAudio()
 {
-    if(!gDevice->audioEnabled)
+    if(gDevice->audioEnabled)
     {
-        return;
+        SDL_PauseAudioDevice(gDevice->device, 1);
+
+        freeSound((Sound *) (gDevice->want).userdata);
+
+        /* Close down audio */
+        SDL_CloseAudioDevice(gDevice->device);
     }
-
-    SDL_PauseAudioDevice(gDevice->device, 1);
-
-    freeSound((Sound *) (gDevice->want).userdata);
-
-    /* Close down audio */
-    SDL_CloseAudioDevice(gDevice->device);
 
     free(gDevice);
 }
