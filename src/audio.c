@@ -22,7 +22,96 @@
 #include <SDL2/SDL.h>
 #include "audio.h"
 
-static GlobalAudioDevice * gDevice;
+/*
+ * Native WAVE format
+ *
+ * On some GNU/Linux you can identify a files properties using:
+ *      mplayer -identify music.wav
+ *
+ * On some GNU/Linux to convert any music to this or another specified format use:
+ *      ffmpeg -i in.mp3 -acodec pcm_s16le -ac 2 -ar 48000 out.wav
+ */
+/* SDL_AudioFormat of files, such as s16 little endian */
+#define AUDIO_FORMAT AUDIO_S16LSB
+
+/* Frequency of the file */
+#define AUDIO_FREQUENCY 48000;
+
+/* 1 mono, 2 stereo, 4 quad, 6 (5.1) */
+#define AUDIO_CHANNELS 2;
+
+/* Specifies a unit of audio data to be used at a time. Must be a power of 2 */
+#define AUDIO_SAMPLES 4096;
+
+/*  
+ * Queue structure for all loaded sounds
+ *
+ */
+typedef struct sound
+{
+    uint32_t length;
+    uint32_t lengthTrue;
+    uint8_t * bufferTrue;
+    uint8_t * buffer;
+    uint8_t loop;
+    uint8_t fade;
+    uint8_t volume;
+
+    SDL_AudioSpec audio;
+
+    struct sound * next;
+} Sound;
+
+/*
+ * Definition for the game global sound device
+ *
+ */
+typedef struct privateAudioDevice
+{
+    SDL_AudioDeviceID device;
+    SDL_AudioSpec want;
+} PrivateAudioDevice;
+
+/*  
+ * Add a sound to the end of the queue
+ *
+ * @param root      Root of queue
+ * @param new       New Sound to add
+ *
+ */
+static void addSound(Sound * root, Sound * new);
+
+/*  
+ * Frees as many chained Sounds as given
+ *
+ * @param sound     Chain of sounds to free
+ *
+ */
+static void freeSound(Sound * sound);
+
+/*  
+ * Create a Sound object
+ *
+ * @param filename      Filename for the WAVE file to load
+ * @param loop          Loop 0, ends after playing, 1 refreshes
+ * @param volume        Volume, read playSound()
+ *
+ * @return returns a new Sound or NULL on failure
+ *
+ */
+static Sound * createSound(char * filename, uint8_t loop, int volume);
+
+/*  
+ * Audio callback function for OpenAudioDevice
+ *
+ * @param userdata      Points to linked list of sounds to play, first being a placeholder
+ * @param stream        Stream to mix sound into
+ * @param len           Length of sound to play
+ *
+ */
+static void audioCallback(void * userdata, uint8_t * stream, int len);
+
+static PrivateAudioDevice * gDevice;
 
 void playSound(char * filename, int volume)
 {
@@ -80,7 +169,7 @@ void playMusic(char * filename, int volume)
 void initAudio()
 {
     Sound * global;
-    gDevice = calloc(1, sizeof(GlobalAudioDevice));
+    gDevice = calloc(1, sizeof(PrivateAudioDevice));
 
     if(gDevice == NULL)
     {
@@ -132,7 +221,7 @@ void endAudio()
     free(gDevice);
 }
 
-Sound * createSound(char * filename, uint8_t loop, int volume)
+static Sound * createSound(char * filename, uint8_t loop, int volume)
 {
     Sound * new = calloc(1, sizeof(Sound));
 
@@ -162,7 +251,7 @@ Sound * createSound(char * filename, uint8_t loop, int volume)
     return new;
 }
 
-void audioCallback(void * userdata, uint8_t * stream, int len)
+static void audioCallback(void * userdata, uint8_t * stream, int len)
 {
     Sound * sound = (Sound *) userdata;
     Sound * previous = sound;
@@ -223,7 +312,7 @@ void audioCallback(void * userdata, uint8_t * stream, int len)
     }
 }
 
-void addSound(Sound * root, Sound * new)
+static void addSound(Sound * root, Sound * new)
 {
     if(root == NULL)
     {
@@ -238,7 +327,7 @@ void addSound(Sound * root, Sound * new)
     root->next = new;
 }
 
-void freeSound(Sound * sound)
+static void freeSound(Sound * sound)
 {
     Sound * temp;
 
