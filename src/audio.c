@@ -70,6 +70,7 @@ typedef struct privateAudioDevice
 {
     SDL_AudioDeviceID device;
     SDL_AudioSpec want;
+    uint8_t audioEnabled;
 } PrivateAudioDevice;
 
 /*  
@@ -129,7 +130,14 @@ void playMusic(char * filename, int volume)
 {
     Sound * global;
     Sound * new;
-    uint8_t music = 0;
+    uint8_t music;
+
+    if(!gDevice->audioEnabled)
+    {
+        return;
+    }
+
+    music = 0;
 
     /* Create new music sound with loop */
     new = createSound(filename, 1, volume);
@@ -171,6 +179,17 @@ void initAudio()
     Sound * global;
     gDevice = calloc(1, sizeof(PrivateAudioDevice));
 
+    if(!(SDL_WasInit(SDL_INIT_AUDIO) & SDL_INIT_AUDIO))
+    {
+        fprintf(stderr, "[%s: %d]Error: SDL_INIT_AUDIO not initialized\n", __FILE__, __LINE__);
+        gDevice->audioEnabled = 0;
+        return;
+    }
+    else
+    {
+        gDevice->audioEnabled = 1;
+    }
+
     if(gDevice == NULL)
     {
         fprintf(stderr, "[%s: %d]Fatal Error: Memory c-allocation error\n", __FILE__, __LINE__);
@@ -211,6 +230,11 @@ void initAudio()
 
 void endAudio()
 {
+    if(!gDevice->audioEnabled)
+    {
+        return;
+    }
+
     SDL_PauseAudioDevice(gDevice->device, 1);
 
     freeSound((Sound *) (gDevice->want).userdata);
@@ -223,7 +247,14 @@ void endAudio()
 
 static Sound * createSound(char * filename, uint8_t loop, int volume)
 {
-    Sound * new = calloc(1, sizeof(Sound));
+    Sound * new;
+
+    if(!gDevice->audioEnabled)
+    {
+        return NULL;
+    }
+
+    new = calloc(1, sizeof(Sound));
 
     if(new == NULL)
     {
