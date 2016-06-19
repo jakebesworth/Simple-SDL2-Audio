@@ -118,6 +118,11 @@ void playSound(char * filename, int volume)
 {
     Sound * new;
 
+    if(!gDevice->audioEnabled)
+    {
+        return;
+    }
+
     new = createSound(filename, 0, volume);
 
     SDL_LockAudioDevice(gDevice->device);
@@ -247,14 +252,7 @@ void endAudio()
 
 static Sound * createSound(char * filename, uint8_t loop, int volume)
 {
-    Sound * new;
-
-    if(!gDevice->audioEnabled)
-    {
-        return NULL;
-    }
-
-    new = calloc(1, sizeof(Sound));
+    Sound * new = calloc(1, sizeof(Sound));
 
     if(new == NULL)
     {
