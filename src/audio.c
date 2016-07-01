@@ -110,7 +110,7 @@ static Sound * createSound(char * filename, uint8_t loop, int volume);
  * @param len           Length of sound to play
  *
  */
-static void audioCallback(void * userdata, uint8_t * stream, int len);
+static inline void audioCallback(void * userdata, uint8_t * stream, int len);
 
 static PrivateAudioDevice * gDevice;
 
@@ -278,7 +278,7 @@ static Sound * createSound(char * filename, uint8_t loop, int volume)
     return new;
 }
 
-static void audioCallback(void * userdata, uint8_t * stream, int len)
+static inline void audioCallback(void * userdata, uint8_t * stream, int len)
 {
     Sound * sound = (Sound *) userdata;
     Sound * previous = sound;

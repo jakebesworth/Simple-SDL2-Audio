@@ -23,8 +23,8 @@
  * All audio related functions go here
  *
  */
-#ifndef SOUND_
-#define SOUND_
+#ifndef SIMPLE_AUDIO_
+#define SIMPLE_AUDIO_
 
 #ifdef __cplusplus
 extern "C"
