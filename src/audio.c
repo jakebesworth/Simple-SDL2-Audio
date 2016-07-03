@@ -211,7 +211,6 @@ void initAudio()
     (gDevice->want).userdata = calloc(1, sizeof(Sound));
 
     global = (gDevice->want).userdata;
-    global->buffer = NULL;
 
     if(global == NULL)
     {
@@ -219,6 +218,7 @@ void initAudio()
         return;
     }
 
+    global->buffer = NULL;
     global->next = NULL;
 
     /* want.userdata = new; */
