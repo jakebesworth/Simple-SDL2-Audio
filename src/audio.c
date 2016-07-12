@@ -43,7 +43,7 @@
 /* Specifies a unit of audio data to be used at a time. Must be a power of 2 */
 #define AUDIO_SAMPLES 4096;
 
-/*  
+/*
  * Queue structure for all loaded sounds
  *
  */
@@ -73,7 +73,7 @@ typedef struct privateAudioDevice
     uint8_t audioEnabled;
 } PrivateAudioDevice;
 
-/*  
+/*
  * Add a sound to the end of the queue
  *
  * @param root      Root of queue
@@ -82,7 +82,7 @@ typedef struct privateAudioDevice
  */
 static void addSound(Sound * root, Sound * new);
 
-/*  
+/*
  * Frees as many chained Sounds as given
  *
  * @param sound     Chain of sounds to free
@@ -90,7 +90,7 @@ static void addSound(Sound * root, Sound * new);
  */
 static void freeSound(Sound * sound);
 
-/*  
+/*
  * Create a Sound object
  *
  * @param filename      Filename for the WAVE file to load
@@ -102,7 +102,7 @@ static void freeSound(Sound * sound);
  */
 static Sound * createSound(char * filename, uint8_t loop, int volume);
 
-/*  
+/*
  * Audio callback function for OpenAudioDevice
  *
  * @param userdata      Points to linked list of sounds to play, first being a placeholder
