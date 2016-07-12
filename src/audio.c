@@ -100,7 +100,7 @@ static void freeSound(Sound * sound);
  * @return returns a new Sound or NULL on failure
  *
  */
-static Sound * createSound(char * filename, uint8_t loop, int volume);
+static Sound * createSound(const char * filename, uint8_t loop, int volume);
 
 /*
  * Audio callback function for OpenAudioDevice
@@ -114,7 +114,7 @@ static inline void audioCallback(void * userdata, uint8_t * stream, int len);
 
 static PrivateAudioDevice * gDevice;
 
-void playSound(char * filename, int volume)
+void playSound(const char * filename, int volume)
 {
     Sound * new;
 
@@ -131,7 +131,7 @@ void playSound(char * filename, int volume)
     SDL_UnlockAudioDevice(gDevice->device);
 }
 
-void playMusic(char * filename, int volume)
+void playMusic(const char * filename, int volume)
 {
     Sound * global;
     Sound * new;
@@ -248,7 +248,7 @@ void endAudio()
     free(gDevice);
 }
 
-static Sound * createSound(char * filename, uint8_t loop, int volume)
+static Sound * createSound(const char * filename, uint8_t loop, int volume)
 {
     Sound * new = calloc(1, sizeof(Sound));
 
