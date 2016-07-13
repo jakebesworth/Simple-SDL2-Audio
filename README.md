@@ -29,3 +29,8 @@
 * I made this project as a more modern version of https://gist.github.com/armornick/3447121
 * https://davidgow.net/handmadepenguin/ch7.html
 * http://rerwarwar.weebly.com/sdl2-audio.html
+
+## Contributors
+
+* [Jake Besworth](https://github.com/jakebesworth)
+* [Lorenzo Mancini](https://github.com/lmancini)
