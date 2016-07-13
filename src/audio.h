@@ -17,7 +17,7 @@
  *
  */
 
-/*  
+/*
  * audio.h
  *
  * All audio related functions go here
@@ -31,31 +31,31 @@ extern "C"
 {
 #endif
 
-/*  
+/*
  * Play a wave file currently must be S16LE format 2 channel stereo
  *
  * @param filename      Filename to open, use getAbsolutePath
  * @param volume        Volume 0 - 128. SDL_MIX_MAXVOLUME constant for max volume
  *
  */
-void playSound(char * filename, int volume);
+void playSound(const char * filename, int volume);
 
-/*  
+/*
  * Plays a new music, only 1 at a time plays
  *
  * @param filename      Filename of the WAVE file to load
  * @param volum         Volume read playSound for moree
  *
  */
-void playMusic(char * filename, int volume);
+void playMusic(const char * filename, int volume);
 
-/*  
+/*
  * Free all audio related variables
  *
  */
 void endAudio();
 
-/*  
+/*
  * Initialize Audio Variable
  *
  */
