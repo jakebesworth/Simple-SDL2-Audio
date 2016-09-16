@@ -44,7 +44,7 @@ void playSound(const char * filename, int volume);
  * Plays a new music, only 1 at a time plays
  *
  * @param filename      Filename of the WAVE file to load
- * @param volum         Volume read playSound for moree
+ * @param volume        Volume read playSound for moree
  *
  */
 void playMusic(const char * filename, int volume);
