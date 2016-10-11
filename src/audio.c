@@ -312,7 +312,7 @@ static inline void audioCallback(void * userdata, uint8_t * stream, int len)
             }
             else
             {
-                tempLength = (len > sound->length) ? sound->length : len;
+                tempLength = ((uint32_t) len > sound->length) ? sound->length : (uint32_t) len;
             }
 
             SDL_MixAudioFormat(stream, sound->buffer, AUDIO_FORMAT, tempLength, sound->volume);
