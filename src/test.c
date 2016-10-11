@@ -1,7 +1,7 @@
 #include <SDL2/SDL.h>
 #include "audio.h"
 
-int main(int argc, char * argv[])
+int main(void)
 {
     /* Initialize only SDL Audio on default device */
     if(SDL_Init(SDL_INIT_AUDIO) < 0)

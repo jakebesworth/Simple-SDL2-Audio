@@ -53,13 +53,13 @@ void playMusic(const char * filename, int volume);
  * Free all audio related variables
  *
  */
-void endAudio();
+void endAudio(void);
 
 /*
  * Initialize Audio Variable
  *
  */
-void initAudio();
+void initAudio(void);
 
 #ifdef __cplusplus
 }
