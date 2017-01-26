@@ -35,13 +35,13 @@
 #define AUDIO_FORMAT AUDIO_S16LSB
 
 /* Frequency of the file */
-#define AUDIO_FREQUENCY 48000;
+#define AUDIO_FREQUENCY 48000
 
 /* 1 mono, 2 stereo, 4 quad, 6 (5.1) */
-#define AUDIO_CHANNELS 2;
+#define AUDIO_CHANNELS 2
 
 /* Specifies a unit of audio data to be used at a time. Must be a power of 2 */
-#define AUDIO_SAMPLES 4096;
+#define AUDIO_SAMPLES 4096
 
 /*
  * Queue structure for all loaded sounds
@@ -265,7 +265,7 @@ static Sound * createSound(const char * filename, uint8_t loop, int volume)
 
     if(SDL_LoadWAV(filename, &(new->audio), &(new->bufferTrue), &(new->lengthTrue)) == NULL)
     {
-        fprintf(stderr, "[%s: %d]Warning: failed to open wave file: %s err: %s\n", __FILE__, __LINE__, filename, SDL_GetError());
+        fprintf(stderr, "[%s: %d]Warning: failed to open wave file: %s error: %s\n", __FILE__, __LINE__, filename, SDL_GetError());
         free(new);
         return NULL;
     }
