@@ -8,11 +8,22 @@
 ## How to use
 
 * Include audio.c and audio.h into your project
-* test.c shows how to simply load wave files as music or sound
+* test.c shows how to simply load wave files as music or sound, and a simple pause and unpause function
+
+## API Functions:
+
+```c
+void initAudio(void);
+void endAudio(void);
+void playSound(const char * filename, int volume);
+void playMusic(const char * filename, int volume);
+void pauseAudio(void);
+void unpauseAudio(void);
+```
 
 ## Music vs Sound
 
-* Only one music can play at a time, and it loops (to close music you can just run endAudio() lazily, or write your own pause function which is not difficult).
+* Only one music can play at a time, and it loops (to close music you can just run `endAudio()`, or use `pauseAudio()` and `unpauseAudio()`).
    * If you add another music when one is playing, the first one fades out before ending, and then playing the second.
    * If you play more than 2 music at once, the first fades as expected, only the last music queued before the first fade out is used
 
@@ -22,7 +33,16 @@
 
 * This implementation uses SDL_MixAudioFormat for mixing for simplicity. It's noted "Do not use this function for mixing together more than two streams of sample data". While only playing 1 music removes a lot of these issues, if you need something more powerful you should write your own mixing function.
 * Multiple Music cannot be mixed together, only music and sound
-* This implementation ONLY plays WAV files, and they must all be of the same format, see the top of audio.c to set the format, stereo vs mono etc... No conversion
+* This implementation ONLY plays WAV files, and they should all be the same format, but can have differing formats if you play around with `SDL_AUDIO_ALLOW_CHANGES` in `audio.c`, see the top of audio.c to set the format, stereo vs mono etc... No conversion
+
+## Features to add
+
+- Pause / unpause only music, only sound or ~~both~~
+- Current implementation uses callback method, however in SDL 2.0.4 there exists `SDL_QueueAudio()` (no callback)
+
+## Emscripten Compatibility
+
+* [Github Issue - Solution](https://github.com/jakebesworth/Simple-SDL2-Audio/issues/2)
 
 ## Resources
 
@@ -34,3 +54,4 @@
 
 * [Jake Besworth](https://github.com/jakebesworth)
 * [Lorenzo Mancini](https://github.com/lmancini)
+* [Ted](https://github.com/claimred)

@@ -23,6 +23,10 @@ int main(void)
     playMusic("music/road.wav", SDL_MIX_MAXVOLUME);
     SDL_Delay(2000);
 
+    pauseAudio();
+    SDL_Delay(2000);
+    unpauseAudio();
+
     playSound("sounds/door2.wav", SDL_MIX_MAXVOLUME / 2);
     SDL_Delay(7000);
 

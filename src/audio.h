@@ -51,6 +51,7 @@ void playMusic(const char * filename, int volume);
 
 /*
  * Free all audio related variables
+ * Note, this needs to be run even if initAudio fails, because it frees the global audio device
  *
  */
 void endAudio(void);
@@ -60,6 +61,18 @@ void endAudio(void);
  *
  */
 void initAudio(void);
+
+/*
+ * Pause audio from playing
+ *
+ */
+void pauseAudio(void);
+
+/*
+ * Unpause audio from playing
+ *
+ */
+void unpauseAudio(void);
 
 #ifdef __cplusplus
 }

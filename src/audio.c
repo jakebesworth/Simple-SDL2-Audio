@@ -43,6 +43,18 @@
 /* Specifies a unit of audio data to be used at a time. Must be a power of 2 */
 #define AUDIO_SAMPLES 4096
 
+/* Flags OR'd together, which specify how SDL should behave when a device cannot offer a specific feature
+ * If flag is set, SDL will change the format in the actual audio file structure (as opposed to gDevice->want)
+ *
+ * Note: If you're having issues with Emscripten / EMCC play around with these flags
+ *
+ * 0                                    Allow no changes
+ * SDL_AUDIO_ALLOW_FREQUENCY_CHANGE     Allow frequency changes (e.g. AUDIO_FREQUENCY is 48k, but allow files to play at 44.1k
+ * SDL_AUDIO_ALLOW_FORMAT_CHANGE        Allow Format change (e.g. AUDIO_FORMAT may be S32LSB, but allow wave files of S16LSB to play)
+ * SDL_AUDIO_ALLOW_CHANNELS_CHANGE      Allow any number of channels (e.g. AUDIO_CHANNELS being 2, allow actual 1)
+ * SDL_AUDIO_ALLOW_ANY_CHANGE           Allow all changes above
+ */
+#define SDL_AUDIO_ALLOW_CHANGES SDL_AUDIO_ALLOW_ANY_CHANGE
 /*
  * Queue structure for all loaded sounds
  *
@@ -184,20 +196,17 @@ void initAudio(void)
     Sound * global;
     gDevice = calloc(1, sizeof(PrivateAudioDevice));
 
-    if(!(SDL_WasInit(SDL_INIT_AUDIO) & SDL_INIT_AUDIO))
-    {
-        fprintf(stderr, "[%s: %d]Error: SDL_INIT_AUDIO not initialized\n", __FILE__, __LINE__);
-        gDevice->audioEnabled = 0;
-        return;
-    }
-    else
-    {
-        gDevice->audioEnabled = 1;
-    }
-
     if(gDevice == NULL)
     {
         fprintf(stderr, "[%s: %d]Fatal Error: Memory c-allocation error\n", __FILE__, __LINE__);
+        return;
+    }
+
+    gDevice->audioEnabled = 0;
+
+    if(!(SDL_WasInit(SDL_INIT_AUDIO) & SDL_INIT_AUDIO))
+    {
+        fprintf(stderr, "[%s: %d]Error: SDL_INIT_AUDIO not initialized\n", __FILE__, __LINE__);
         return;
     }
 
@@ -222,14 +231,17 @@ void initAudio(void)
     global->next = NULL;
 
     /* want.userdata = new; */
-    if((gDevice->device = SDL_OpenAudioDevice(NULL, 0, &(gDevice->want), NULL, SDL_AUDIO_ALLOW_ANY_CHANGE)) == 0)
+    if((gDevice->device = SDL_OpenAudioDevice(NULL, 0, &(gDevice->want), NULL, SDL_AUDIO_ALLOW_CHANGES)) == 0)
     {
         fprintf(stderr, "[%s: %d]Warning: failed to open audio device: %s\n", __FILE__, __LINE__, SDL_GetError());
     }
     else
     {
+        /* Set audio device enabled global flag */
+        gDevice->audioEnabled = 1;
+
         /* Unpause active audio stream */
-        SDL_PauseAudioDevice(gDevice->device, 0);
+        unpauseAudio();
     }
 }
 
@@ -237,7 +249,7 @@ void endAudio(void)
 {
     if(gDevice->audioEnabled)
     {
-        SDL_PauseAudioDevice(gDevice->device, 1);
+        pauseAudio();
 
         freeSound((Sound *) (gDevice->want).userdata);
 
@@ -246,6 +258,22 @@ void endAudio(void)
     }
 
     free(gDevice);
+}
+
+void pauseAudio(void)
+{
+    if(gDevice->audioEnabled)
+    {
+        SDL_PauseAudioDevice(gDevice->device, 1);
+    }
+}
+
+void unpauseAudio(void)
+{
+    if(gDevice->audioEnabled)
+    {
+        SDL_PauseAudioDevice(gDevice->device, 0);
+    }
 }
 
 static Sound * createSound(const char * filename, uint8_t loop, int volume)
