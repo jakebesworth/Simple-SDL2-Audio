@@ -37,6 +37,7 @@ void unpauseAudio(void);
 
 ## Features to add
 
+- WAV data caching: Currently a read occurs everytime you play a sound and music. An addition would be storing the data as RWops in memory and just playing from that. Limitations include how much memory you want to use, garbage collection rotation, some sort of storage, probably hash map (filepath => data). May want to only cache frequently used sounds and not music.
 - Pause / unpause only music, only sound or ~~both~~
 - Current implementation uses callback method, however in SDL 2.0.4 there exists `SDL_QueueAudio()` (no callback)
 
