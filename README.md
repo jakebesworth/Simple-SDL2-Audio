@@ -74,7 +74,6 @@ void freeAudio(Audio * audio);
 
 * This implementation uses SDL_MixAudioFormat for mixing for simplicity. It's noted "Do not use this function for mixing together more than two streams of sample data". While only playing 1 music removes a lot of these issues, if you need something more powerful you should write your own mixing function.
 * This implementation ONLY plays WAV files, and they should all be the same format, but can have differing formats if you play around with `SDL_AUDIO_ALLOW_CHANGES` in `src/audio.c`, see the top of `src/audio.c` to set the format, stereo vs mono etc... No conversion
-* WAV data caching: Currently a read occurs everytime you play a sound and music. An addition would be storing the data as RWops in memory and just playing from that. Limitations include how much memory you want to use, garbage collection rotation, some sort of storage, probably hash map (filepath => data). May want to only cache frequently used sounds and not music.
 * Caching: Using the standard `playMusic()` functions do a read everytime you want to play an audio file. To do one read, and cache and play from the file from memory use the `createAudio(); playSoundFromMemory(); freeAudio();` functions (recommend storing them in a dictionary / hashmap)
 
 ## Features to add
