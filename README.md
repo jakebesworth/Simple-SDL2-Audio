@@ -58,6 +58,7 @@ void unpauseAudio(void);
 Audio * createAudio(const char * filename, uint8_t loop, int volume);
 void playSoundFromMemory(Audio * audio, int volume);
 void playMusicFromMemory(Audio * audio, int volume);
+// Only call this after calling endAudio() as Audio may be referenced in clone
 void freeAudio(Audio * audio);
 ```
 

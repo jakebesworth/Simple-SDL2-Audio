@@ -36,15 +36,17 @@ int main(void)
     Audio * sound = createAudio("sounds/door1.wav", 0, SDL_MIX_MAXVOLUME / 2);
     playSoundFromMemory(sound, SDL_MIX_MAXVOLUME);
     SDL_Delay(2000);
-    freeAudio(sound);
 
     Audio * music = createAudio("music/highlands.wav", 1, SDL_MIX_MAXVOLUME);
     playMusicFromMemory(music, SDL_MIX_MAXVOLUME);
     SDL_Delay(2000);
-    freeAudio(music);
 
     /* End Simple-SDL2-Audio */
     endAudio();
+
+    /* Important to free audio after ending Simple-SDL2-Audio because they might be referenced still */
+    freeAudio(sound);
+    freeAudio(music);
 
     SDL_Quit();
 
