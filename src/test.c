@@ -21,14 +21,14 @@ int main(void)
 
     /* Override music, play another sound */
     playMusic("music/road.wav", SDL_MIX_MAXVOLUME);
-    SDL_Delay(2000);
+    SDL_Delay(1000);
 
     pauseAudio();
-    SDL_Delay(2000);
+    SDL_Delay(1000);
     unpauseAudio();
 
     playSound("sounds/door2.wav", SDL_MIX_MAXVOLUME / 2);
-    SDL_Delay(7000);
+    SDL_Delay(2000);
 
     /* End Simple-SDL2-Audio */
     endAudio();

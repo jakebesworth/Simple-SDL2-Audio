@@ -17,9 +17,11 @@
  *
  */
 #include <stdint.h>
-#include <stdlib.h>
 #include <stdio.h>
+#include <stdlib.h>
+
 #include <SDL2/SDL.h>
+
 #include "audio.h"
 
 /*
@@ -43,6 +45,9 @@
 /* Specifies a unit of audio data to be used at a time. Must be a power of 2 */
 #define AUDIO_SAMPLES 4096
 
+/* Max number of sounds that can be in the audio queue at anytime, stops too much mixing */
+#define AUDIO_MAX_SOUNDS 25
+
 /* Flags OR'd together, which specify how SDL should behave when a device cannot offer a specific feature
  * If flag is set, SDL will change the format in the actual audio file structure (as opposed to gDevice->want)
  *
@@ -55,6 +60,7 @@
  * SDL_AUDIO_ALLOW_ANY_CHANGE           Allow all changes above
  */
 #define SDL_AUDIO_ALLOW_CHANGES SDL_AUDIO_ALLOW_ANY_CHANGE
+
 /*
  * Queue structure for all loaded sounds
  *
@@ -85,6 +91,18 @@ typedef struct privateAudioDevice
     uint8_t audioEnabled;
 } PrivateAudioDevice;
 
+/* File scope variables to persist data */
+static PrivateAudioDevice * gDevice;
+static uint32_t gSoundCount;
+
+/*
+ * Add a music to the queue, addSound wrapper for music due to fade
+ *
+ * @param new       New Sound to add
+ *
+ */
+static void addMusic(Sound * root, Sound * new);
+
 /*
  * Add a sound to the end of the queue
  *
@@ -92,7 +110,7 @@ typedef struct privateAudioDevice
  * @param new       New Sound to add
  *
  */
-static void addSound(Sound * root, Sound * new);
+static void addAudio(Sound * root, Sound * new);
 
 /*
  * Frees as many chained Sounds as given
@@ -112,7 +130,7 @@ static void freeSound(Sound * sound);
  * @return returns a new Sound or NULL on failure
  *
  */
-static Sound * createSound(const char * filename, uint8_t loop, int volume);
+static Sound * createAudio(const char * filename, uint8_t loop, int volume);
 
 /*
  * Audio callback function for OpenAudioDevice
@@ -124,8 +142,6 @@ static Sound * createSound(const char * filename, uint8_t loop, int volume);
  */
 static inline void audioCallback(void * userdata, uint8_t * stream, int len);
 
-static PrivateAudioDevice * gDevice;
-
 void playSound(const char * filename, int volume)
 {
     Sound * new;
@@ -135,59 +151,35 @@ void playSound(const char * filename, int volume)
         return;
     }
 
-    new = createSound(filename, 0, volume);
+    if(gSoundCount >= AUDIO_MAX_SOUNDS)
+    {
+        return;
+    }
+
+    gSoundCount++;
+
+    new = createAudio(filename, 0, volume);
 
     SDL_LockAudioDevice(gDevice->device);
-    addSound((Sound *) (gDevice->want).userdata, new);
-
+    addAudio((Sound *) (gDevice->want).userdata, new);
     SDL_UnlockAudioDevice(gDevice->device);
 }
 
 void playMusic(const char * filename, int volume)
 {
-    Sound * global;
     Sound * new;
-    uint8_t music;
 
     if(!gDevice->audioEnabled)
     {
         return;
     }
 
-    music = 0;
-
     /* Create new music sound with loop */
-    new = createSound(filename, 1, volume);
+    new = createAudio(filename, 1, volume);
 
     /* Lock callback function */
     SDL_LockAudioDevice(gDevice->device);
-    global = ((Sound *) (gDevice->want).userdata)->next;
-
-    /* Find any existing musics, 0, 1 or 2 */
-    while(global != NULL)
-    {
-        /* Phase out any current music */
-        if(global->loop == 1 && global->fade == 0)
-        {
-            if(music)
-            {
-                global->length = 0;
-                global->volume = 0;
-            }
-
-            global->fade = 1;
-        }
-        /* Set flag to remove any queued up music in favour of new music */
-        else if(global->loop == 1 && global->fade == 1)
-        {
-            music = 1;
-        }
-
-        global = global->next;
-    }
-
-    addSound((Sound *) (gDevice->want).userdata, new);
-
+    addMusic((Sound *) (gDevice->want).userdata, new);
     SDL_UnlockAudioDevice(gDevice->device);
 }
 
@@ -195,6 +187,7 @@ void initAudio(void)
 {
     Sound * global;
     gDevice = calloc(1, sizeof(PrivateAudioDevice));
+    gSoundCount = 0;
 
     if(gDevice == NULL)
     {
@@ -276,7 +269,38 @@ void unpauseAudio(void)
     }
 }
 
-static Sound * createSound(const char * filename, uint8_t loop, int volume)
+static void addMusic(Sound * root, Sound * new)
+{
+    uint8_t musicFound = 0;
+    Sound * rootNext = root->next;
+
+    /* Find any existing musics, 0, 1 or 2 and fade them out */
+    while(rootNext != NULL)
+    {
+        /* Phase out any current music */
+        if(rootNext->loop == 1 && rootNext->fade == 0)
+        {
+            if(musicFound)
+            {
+                rootNext->length = 0;
+                rootNext->volume = 0;
+            }
+
+            rootNext->fade = 1;
+        }
+        /* Set flag to remove any queued up music in favour of new music */
+        else if(rootNext->loop == 1 && rootNext->fade == 1)
+        {
+            musicFound = 1;
+        }
+
+        rootNext = rootNext->next;
+    }
+
+    addAudio(root, new);
+}
+
+static Sound * createAudio(const char * filename, uint8_t loop, int volume)
 {
     Sound * new = calloc(1, sizeof(Sound));
 
@@ -359,15 +383,21 @@ static inline void audioCallback(void * userdata, uint8_t * stream, int len)
         else
         {
             previous->next = sound->next;
-            SDL_FreeWAV(sound->bufferTrue);
-            free(sound);
+
+            if(sound->loop == 0)
+            {
+                gSoundCount--;
+            }
+
+            sound->next = NULL;
+            freeSound(sound);
 
             sound = previous->next;
         }
     }
 }
 
-static void addSound(Sound * root, Sound * new)
+static void addAudio(Sound * root, Sound * new)
 {
     if(root == NULL)
     {
