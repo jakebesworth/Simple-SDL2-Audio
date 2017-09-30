@@ -23,12 +23,25 @@ int main(void)
     playMusic("music/road.wav", SDL_MIX_MAXVOLUME);
     SDL_Delay(1000);
 
+    /* Pause audio test */
     pauseAudio();
     SDL_Delay(1000);
     unpauseAudio();
 
     playSound("sounds/door2.wav", SDL_MIX_MAXVOLUME / 2);
     SDL_Delay(2000);
+
+    /* Caching sound example, create, play from Memory, clear */
+
+    Audio * sound = createAudio("sounds/door1.wav", 0, SDL_MIX_MAXVOLUME / 2);
+    playSoundFromMemory(sound, SDL_MIX_MAXVOLUME);
+    SDL_Delay(2000);
+    freeAudio(sound);
+
+    Audio * music = createAudio("music/highlands.wav", 1, SDL_MIX_MAXVOLUME);
+    playMusicFromMemory(music, SDL_MIX_MAXVOLUME);
+    SDL_Delay(2000);
+    freeAudio(music);
 
     /* End Simple-SDL2-Audio */
     endAudio();

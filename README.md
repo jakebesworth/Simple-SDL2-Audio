@@ -5,41 +5,82 @@
 * A simple native SDL2 Audio library that has 2 files, and an easy to use interface.
 * This library works without SDL2 Mixer, and plays a single music file at a time, and unlimited sounds (Mixes audio natively without Mixer)
 
-## How to use
+## Install
 
-* Include audio.c and audio.h into your project
-* test.c shows how to simply load wave files as music or sound, and a simple pause and unpause function
+* Include `src/audio.c` and `src/audio.h` in your project
+
+## Examples
+
+* `src/test.c` shows all the functionality possible:
+
+Basic use case:
+
+```c
+// Initialize SDL2 Audio only
+SDL_Init(SDL_INIT_AUDIO);
+
+// Initialize Simple-SDL2-Audio
+initAudio();
+
+// Play music and a sound
+playMusic("music/highlands.wav", SDL_MIX_MAXVOLUME);
+playSound("sounds/door1.wav", SDL_MIX_MAXVOLUME / 2);
+
+// Let play for 1 second
+SDL_Delay(1000);
+
+// End Simple-SDL2-Audio
+endAudio();
+
+// End SDL2
+SDL_Quit();
+```
 
 ## API Functions:
 
 ```c
+// Initialize Simple-SDL2-Audio on default audio device
 void initAudio(void);
-void endAudio(void);
+
+// Play many Sounds or single Musics
 void playSound(const char * filename, int volume);
 void playMusic(const char * filename, int volume);
+
+// Clean up Simple-SDL2-Audio
+void endAudio(void);
+
+// Pause or Unpause running audio
 void pauseAudio(void);
 void unpauseAudio(void);
+
+
+// Advanced functions used for caching WAV files in memory, create, play many times, free
+Audio * createAudio(const char * filename, uint8_t loop, int volume);
+void playSoundFromMemory(Audio * audio, int volume);
+void playMusicFromMemory(Audio * audio, int volume);
+void freeAudio(Audio * audio);
 ```
 
-## Music vs Sound
+## Difference between Music vs Sound
 
 * Only one music can play at a time, and it loops (to close music you can just run `endAudio()`, or use `pauseAudio()` and `unpauseAudio()`).
    * If you add another music when one is playing, the first one fades out before ending, and then playing the second.
    * If you play more than 2 music at once, the first fades as expected, only the last music queued before the first fade out is used
 
-* Any amount of sounds can be played at once, but obviously the more, can become distorted.
+* Any number of sounds can be played at once, but obviously the more, can become distorted
+   * Can change `AUDIO_MAX_SOUNDS` in `src/audio.c` to limit how many sounds can be played at once to reduce distortion from too many playing
 
-## Limitations
+## Caveats
 
 * This implementation uses SDL_MixAudioFormat for mixing for simplicity. It's noted "Do not use this function for mixing together more than two streams of sample data". While only playing 1 music removes a lot of these issues, if you need something more powerful you should write your own mixing function.
-* Multiple Music cannot be mixed together, only music and sound
-* This implementation ONLY plays WAV files, and they should all be the same format, but can have differing formats if you play around with `SDL_AUDIO_ALLOW_CHANGES` in `audio.c`, see the top of audio.c to set the format, stereo vs mono etc... No conversion
+* This implementation ONLY plays WAV files, and they should all be the same format, but can have differing formats if you play around with `SDL_AUDIO_ALLOW_CHANGES` in `src/audio.c`, see the top of `src/audio.c` to set the format, stereo vs mono etc... No conversion
+* WAV data caching: Currently a read occurs everytime you play a sound and music. An addition would be storing the data as RWops in memory and just playing from that. Limitations include how much memory you want to use, garbage collection rotation, some sort of storage, probably hash map (filepath => data). May want to only cache frequently used sounds and not music.
+* Caching: Using the standard `playMusic()` functions do a read everytime you want to play an audio file. To do one read, and cache and play from the file from memory use the `createAudio(); playSoundFromMemory(); freeAudio();` functions (recommend storing them in a dictionary / hashmap)
 
 ## Features to add
 
-- WAV data caching: Currently a read occurs everytime you play a sound and music. An addition would be storing the data as RWops in memory and just playing from that. Limitations include how much memory you want to use, garbage collection rotation, some sort of storage, probably hash map (filepath => data). May want to only cache frequently used sounds and not music.
-- Pause / unpause only music, only sound or ~~both~~
-- Current implementation uses callback method, however in SDL 2.0.4 there exists `SDL_QueueAudio()` (no callback)
+* Pause / unpause only music, only sound or ~~both~~
+* Current implementation uses callback method, however in SDL 2.0.4 there exists `SDL_QueueAudio()` (no callback)
 
 ## Emscripten Compatibility
 
