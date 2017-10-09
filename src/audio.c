@@ -393,9 +393,12 @@ static inline void audioCallback(void * userdata, uint8_t * stream, int len)
             if(audio->fade == 1 && audio->loop == 1)
             {
                 music = 1;
-                audio->volume--;
 
-                if(audio->volume == 0)
+                if(audio->volume > 0)
+                {
+                    audio->volume--;
+                }
+                else
                 {
                     audio->length = 0;
                 }
