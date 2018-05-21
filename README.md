@@ -80,6 +80,12 @@ void freeAudio(Audio * audio);
 * Pause / unpause only music, only sound or ~~both~~
 * Current implementation uses callback method, however in SDL 2.0.4 there exists `SDL_QueueAudio()` (no callback)
 
+## Windows 7 Compatability
+
+* [Github Issue - Solution](https://github.com/jakebesworth/Simple-SDL2-Audio/issues/3)
+
+SDL2.0.6 updated how audio was handled, for Windows 7 using a later release of SDL2, you need to set `#define SDL_AUDIO_ALLOW_CHANGES SDL_AUDIO_ALLOW_FREQUENCY_CHANGE | SDL_AUDIO_ALLOW_CHANNELS_CHANGE` which is a flag near the top of the file.
+
 ## Emscripten Compatibility
 
 * [Github Issue - Solution](https://github.com/jakebesworth/Simple-SDL2-Audio/issues/2)
@@ -95,3 +101,4 @@ void freeAudio(Audio * audio);
 * [Jake Besworth](https://github.com/jakebesworth)
 * [Lorenzo Mancini](https://github.com/lmancini)
 * [Ted](https://github.com/claimred)
+* [Eric Boez](https://github.com/ericb59)
