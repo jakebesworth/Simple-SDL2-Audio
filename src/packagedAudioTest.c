@@ -46,6 +46,13 @@ int main(void)
     playSoundFromMemory(door2, SDL_MIX_MAXVOLUME);
     SDL_Delay(2000);
 
+    stopMusic();
+    playSoundFromMemory(door2, SDL_MIX_MAXVOLUME);
+
+    SDL_Delay(2000);
+    playSoundFromMemory(door2, SDL_MIX_MAXVOLUME);
+    SDL_Delay(8000);
+
     /* End Simple-SDL2-Audio */
     endAudio();
 

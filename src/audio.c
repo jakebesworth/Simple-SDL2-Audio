@@ -315,6 +315,11 @@ Audio * createAudioFromMemory(char* start,char* end, uint8_t loop, int volume)
     return new;
 }
 
+void stopMusic()
+{
+    addMusic((Audio *) (gDevice->want).userdata, NULL);
+}
+
 static inline void playAudio(const char * filename, Audio * audio, uint8_t loop, int volume)
 {
     Audio * new;
@@ -410,7 +415,7 @@ static void addMusic(Audio * root, Audio * new)
         rootNext = rootNext->next;
     }
 
-    addAudio(root, new);
+    if(new!=NULL)addAudio(root, new);
 }
 
 static inline void audioCallback(void * userdata, uint8_t * stream, int len)
