@@ -275,6 +275,46 @@ Audio * createAudio(const char * filename, uint8_t loop, int volume)
     return new;
 }
 
+Audio * createAudioFromMemory(char* start,char* end, uint8_t loop, int volume)
+{
+    Audio * new = calloc(1, sizeof(Audio));
+
+    if(new == NULL)
+    {
+        fprintf(stderr, "[%s: %d]Error: Memory allocation error\n", __FILE__, __LINE__);
+        return NULL;
+    }
+
+    if(start==NULL || end==NULL)
+    {
+        fprintf(stderr, "[%s: %d]Warning: address pointers are NULL\n", __FILE__, __LINE__);
+        return NULL;
+    }
+
+    new->next = NULL;
+    new->loop = loop;
+    new->fade = 0;
+    new->free = 1;
+    new->volume = volume;
+
+    Uint32 length=end-start;
+    new->lengthTrue = length;
+
+    if(SDL_LoadWAV_RW(SDL_RWFromMem(start,length),1,&(new->audio),&(new->bufferTrue),&length) == NULL)
+    {
+        fprintf(stderr, "[%s: %d]Warning: failed to create audio buffer from memory. Error: %s\n", __FILE__, __LINE__, SDL_GetError());
+        free(new);
+        return NULL;
+    }
+
+    new->buffer = new->bufferTrue;
+    new->length = new->lengthTrue;
+    (new->audio).callback = NULL;
+    (new->audio).userdata = NULL;
+
+    return new;
+}
+
 static inline void playAudio(const char * filename, Audio * audio, uint8_t loop, int volume)
 {
     Audio * new;

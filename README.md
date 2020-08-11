@@ -11,7 +11,10 @@
 
 ## Examples
 
-* `src/test.c` shows all the functionality possible:
+Run "make" for building the examples.
+
+* `src/test.c` (`make tests`) shows the basic functionalities (using separate audio files)
+* `src/packagedAudioTest.c` (`make packtest`) shows those functionalities using packaged audio (audio within the executable file)
 
 Basic use case:
 
@@ -41,6 +44,12 @@ SDL_Quit();
 ```c
 // Initialize Simple-SDL2-Audio on default audio device
 void initAudio(void);
+
+// Creates an audio buffer from a file
+Audio * createAudio(const char * filename, uint8_t loop, int volume);
+
+// Creates an audio buffer from a memory region (from *start* to *end*)
+Audio * createAudioFromMemory(char* start,char* end, uint8_t loop, int volume);
 
 // Play many Sounds or single Musics
 void playSound(const char * filename, int volume);
@@ -102,3 +111,4 @@ SDL2.0.6 updated how audio was handled, for Windows 7 using a later release of S
 * [Lorenzo Mancini](https://github.com/lmancini)
 * [Ted](https://github.com/claimred)
 * [Eric Boez](https://github.com/ericb59)
+* [Amélia O. F. da S.](https://github.com/m3101)

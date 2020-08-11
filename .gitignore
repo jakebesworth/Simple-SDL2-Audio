@@ -1,3 +1,5 @@
 *.o
 a.out
 Makefile
+.vscode
+build

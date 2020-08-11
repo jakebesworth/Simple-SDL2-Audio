@@ -66,6 +66,19 @@ typedef struct sound
 Audio * createAudio(const char * filename, uint8_t loop, int volume);
 
 /*
+ * Create an Audio object from a memory region
+ *
+ * @param start         The address of the start of the file on the memory
+ * @param end           The address of the end of the file on the memory
+ * @param loop          0 ends after playing once (sound), 1 repeats and fades when other music added (music)
+ * @param volume        Volume, read playSound()
+ *
+ * @return returns a new Audio or NULL on failure, you must call freeAudio() on return Audio
+ *
+ */
+Audio * createAudioFromMemory(char* start,char* end, uint8_t loop, int volume);
+
+/*
  * Frees as many chained Audios as given
  *
  * @param audio     Chain of sounds to free
