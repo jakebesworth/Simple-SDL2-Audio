@@ -329,14 +329,7 @@ static inline void playAudio(const char * filename, Audio * audio, uint8_t loop,
     /* Lock callback function */
     SDL_LockAudioDevice(gDevice->device);
 
-    if(loop == 1)
-    {
-        addMusic((Audio *) (gDevice->want).userdata, newAudio);
-    }
-    else
-    {
-        addAudio((Audio *) (gDevice->want).userdata, newAudio);
-    }
+    addMusic((Audio *) (gDevice->want).userdata, newAudio);
 
     SDL_UnlockAudioDevice(gDevice->device);
 
