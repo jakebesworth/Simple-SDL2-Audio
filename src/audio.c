@@ -137,7 +137,7 @@ void playMusicFromMemory(Audio * audio, int volume)
 void initAudio(void)
 {
     Audio * global;
-    gDevice = (PrivateAudioDevice *)calloc(1, sizeof(PrivateAudioDevice));
+    gDevice = (PrivateAudioDevice *) calloc(1, sizeof(PrivateAudioDevice));
     gSoundCount = 0;
 
     if(gDevice == NULL)
@@ -163,7 +163,7 @@ void initAudio(void)
     (gDevice->want).callback = audioCallback;
     (gDevice->want).userdata = calloc(1, sizeof(Audio));
 
-    global = (Audio *)(gDevice->want).userdata;
+    global = (Audio *) (gDevice->want).userdata;
 
     if(global == NULL)
     {
@@ -174,7 +174,7 @@ void initAudio(void)
     global->buffer = NULL;
     global->next = NULL;
 
-    /* want.userdata = new; */
+    /* want.userdata = newAudio; */
     if((gDevice->device = SDL_OpenAudioDevice(NULL, 0, &(gDevice->want), NULL, SDL_AUDIO_ALLOW_CHANGES)) == 0)
     {
         fprintf(stderr, "[%s: %d]Warning: failed to open audio device: %s\n", __FILE__, __LINE__, SDL_GetError());
@@ -240,7 +240,7 @@ void freeAudio(Audio * audio)
 
 Audio * createAudio(const char * filename, uint8_t loop, int volume)
 {
-    Audio * newAudio = (Audio *)calloc(1, sizeof(Audio));
+    Audio * newAudio = (Audio *) calloc(1, sizeof(Audio));
 
     if(newAudio == NULL)
     {
@@ -306,7 +306,7 @@ static inline void playAudio(const char * filename, Audio * audio, uint8_t loop,
     }
     else if(audio != NULL)
     {
-        newAudio = (Audio *)malloc(sizeof(Audio));
+        newAudio = (Audio *) malloc(sizeof(Audio));
 
         if(newAudio == NULL)
         {
@@ -329,7 +329,14 @@ static inline void playAudio(const char * filename, Audio * audio, uint8_t loop,
     /* Lock callback function */
     SDL_LockAudioDevice(gDevice->device);
 
-    addMusic((Audio *) (gDevice->want).userdata, newAudio);
+    if(loop == 1)
+    {
+        addMusic((Audio *) (gDevice->want).userdata, newAudio);
+    }
+    else
+    {
+        addAudio((Audio *) (gDevice->want).userdata, newAudio);
+    }
 
     SDL_UnlockAudioDevice(gDevice->device);
 
