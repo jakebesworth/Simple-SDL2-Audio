@@ -102,3 +102,4 @@ SDL2.0.6 updated how audio was handled, for Windows 7 using a later release of S
 * [Lorenzo Mancini](https://github.com/lmancini)
 * [Ted](https://github.com/claimred)
 * [Eric Boez](https://github.com/ericb59)
+* [Ivan Karlović](https://github.com/Karlovsky120)

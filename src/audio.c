@@ -79,10 +79,10 @@ static uint32_t gSoundCount;
 /*
  * Add a music to the queue, addAudio wrapper for music due to fade
  *
- * @param new       New Audio to add
+ * @param newAudio       New Audio to add
  *
  */
-static void addMusic(Audio * root, Audio * new);
+static void addMusic(Audio * root, Audio * newAudio);
 
 /*
  * Wrapper function for playMusic, playSound, playMusicFromMemory, playSoundFromMemory
@@ -98,11 +98,11 @@ static inline void playAudio(const char * filename, Audio * audio, uint8_t loop,
 /*
  * Add a sound to the end of the queue
  *
- * @param root      Root of queue
- * @param new       New Audio to add
+ * @param root           Root of queue
+ * @param newAudio       New Audio to add
  *
  */
-static void addAudio(Audio * root, Audio * new);
+static void addAudio(Audio * root, Audio * newAudio);
 
 /*
  * Audio callback function for OpenAudioDevice
@@ -137,7 +137,7 @@ void playMusicFromMemory(Audio * audio, int volume)
 void initAudio(void)
 {
     Audio * global;
-    gDevice = calloc(1, sizeof(PrivateAudioDevice));
+    gDevice = (PrivateAudioDevice *) calloc(1, sizeof(PrivateAudioDevice));
     gSoundCount = 0;
 
     if(gDevice == NULL)
@@ -163,7 +163,7 @@ void initAudio(void)
     (gDevice->want).callback = audioCallback;
     (gDevice->want).userdata = calloc(1, sizeof(Audio));
 
-    global = (gDevice->want).userdata;
+    global = (Audio *) (gDevice->want).userdata;
 
     if(global == NULL)
     {
@@ -174,7 +174,7 @@ void initAudio(void)
     global->buffer = NULL;
     global->next = NULL;
 
-    /* want.userdata = new; */
+    /* want.userdata = newAudio; */
     if((gDevice->device = SDL_OpenAudioDevice(NULL, 0, &(gDevice->want), NULL, SDL_AUDIO_ALLOW_CHANGES)) == 0)
     {
         fprintf(stderr, "[%s: %d]Warning: failed to open audio device: %s\n", __FILE__, __LINE__, SDL_GetError());
@@ -240,9 +240,9 @@ void freeAudio(Audio * audio)
 
 Audio * createAudio(const char * filename, uint8_t loop, int volume)
 {
-    Audio * new = calloc(1, sizeof(Audio));
+    Audio * newAudio = (Audio *) calloc(1, sizeof(Audio));
 
-    if(new == NULL)
+    if(newAudio == NULL)
     {
         fprintf(stderr, "[%s: %d]Error: Memory allocation error\n", __FILE__, __LINE__);
         return NULL;
@@ -254,30 +254,30 @@ Audio * createAudio(const char * filename, uint8_t loop, int volume)
         return NULL;
     }
 
-    new->next = NULL;
-    new->loop = loop;
-    new->fade = 0;
-    new->free = 1;
-    new->volume = volume;
+    newAudio->next = NULL;
+    newAudio->loop = loop;
+    newAudio->fade = 0;
+    newAudio->free = 1;
+    newAudio->volume = volume;
 
-    if(SDL_LoadWAV(filename, &(new->audio), &(new->bufferTrue), &(new->lengthTrue)) == NULL)
+    if(SDL_LoadWAV(filename, &(newAudio->audio), &(newAudio->bufferTrue), &(newAudio->lengthTrue)) == NULL)
     {
         fprintf(stderr, "[%s: %d]Warning: failed to open wave file: %s error: %s\n", __FILE__, __LINE__, filename, SDL_GetError());
-        free(new);
+        free(newAudio);
         return NULL;
     }
 
-    new->buffer = new->bufferTrue;
-    new->length = new->lengthTrue;
-    (new->audio).callback = NULL;
-    (new->audio).userdata = NULL;
+    newAudio->buffer = newAudio->bufferTrue;
+    newAudio->length = newAudio->lengthTrue;
+    (newAudio->audio).callback = NULL;
+    (newAudio->audio).userdata = NULL;
 
-    return new;
+    return newAudio;
 }
 
 static inline void playAudio(const char * filename, Audio * audio, uint8_t loop, int volume)
 {
-    Audio * new;
+    Audio * newAudio;
 
     /* Check if audio is enabled */
     if(!gDevice->audioEnabled)
@@ -302,23 +302,23 @@ static inline void playAudio(const char * filename, Audio * audio, uint8_t loop,
     if(filename != NULL)
     {
         /* Create new music sound with loop */
-        new = createAudio(filename, loop, volume);
+        newAudio = createAudio(filename, loop, volume);
     }
     else if(audio != NULL)
     {
-        new = malloc(sizeof(Audio));
+        newAudio = (Audio *) malloc(sizeof(Audio));
 
-        if(new == NULL)
+        if(newAudio == NULL)
         {
             fprintf(stderr, "[%s: %d]Fatal Error: Memory allocation error\n", __FILE__, __LINE__);
             return;
         }
 
-        memcpy(new, audio, sizeof(Audio));
+        memcpy(newAudio, audio, sizeof(Audio));
 
-        new->volume = volume;
-        new->loop = loop;
-        new->free = 0;
+        newAudio->volume = volume;
+        newAudio->loop = loop;
+        newAudio->free = 0;
     }
     else
     {
@@ -331,18 +331,18 @@ static inline void playAudio(const char * filename, Audio * audio, uint8_t loop,
 
     if(loop == 1)
     {
-        addMusic((Audio *) (gDevice->want).userdata, new);
+        addMusic((Audio *) (gDevice->want).userdata, newAudio);
     }
     else
     {
-        addAudio((Audio *) (gDevice->want).userdata, new);
+        addAudio((Audio *) (gDevice->want).userdata, newAudio);
     }
 
     SDL_UnlockAudioDevice(gDevice->device);
 
 }
 
-static void addMusic(Audio * root, Audio * new)
+static void addMusic(Audio * root, Audio * newAudio)
 {
     uint8_t musicFound = 0;
     Audio * rootNext = root->next;
@@ -370,7 +370,7 @@ static void addMusic(Audio * root, Audio * new)
         rootNext = rootNext->next;
     }
 
-    addAudio(root, new);
+    addAudio(root, newAudio);
 }
 
 static inline void audioCallback(void * userdata, uint8_t * stream, int len)
@@ -443,7 +443,7 @@ static inline void audioCallback(void * userdata, uint8_t * stream, int len)
     }
 }
 
-static void addAudio(Audio * root, Audio * new)
+static void addAudio(Audio * root, Audio * newAudio)
 {
     if(root == NULL)
     {
@@ -455,5 +455,5 @@ static void addAudio(Audio * root, Audio * new)
         root = root->next;
     }
 
-    root->next = new;
+    root->next = newAudio;
 }
