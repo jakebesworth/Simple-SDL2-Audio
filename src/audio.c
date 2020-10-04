@@ -48,6 +48,9 @@
 /* Max number of sounds that can be in the audio queue at anytime, stops too much mixing */
 #define AUDIO_MAX_SOUNDS 25
 
+/* The rate at which the volume fades when musics transition. The higher number indicates music fading faster */
+#define AUDIO_MUSIC_FADE_VALUE 2
+
 /* Flags OR'd together, which specify how SDL should behave when a device cannot offer a specific feature
  * If flag is set, SDL will change the format in the actual audio file structure (as opposed to gDevice->want)
  *
@@ -396,7 +399,14 @@ static inline void audioCallback(void * userdata, uint8_t * stream, int len)
 
                 if(audio->volume > 0)
                 {
-                    audio->volume--;
+                    if(audio->volume - AUDIO_MUSIC_FADE_VALUE < 0)
+                    {
+                        audio->volume = 0;
+                    }
+                    else
+                    {
+                        audio->volume -= AUDIO_MUSIC_FADE_VALUE;
+                    }
                 }
                 else
                 {

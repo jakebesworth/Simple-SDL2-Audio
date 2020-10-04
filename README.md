@@ -79,6 +79,7 @@ void freeAudio(Audio * audio);
 
 * Pause / unpause only music, only sound or ~~both~~
 * Current implementation uses callback method, however in SDL 2.0.4 there exists `SDL_QueueAudio()` (no callback)
+* For gSoundCount check for duplicate sounds
 
 ## Windows 7 Compatability
 
