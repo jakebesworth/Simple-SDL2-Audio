@@ -253,7 +253,7 @@ Audio * createAudio(const char * filename, uint8_t loop, int volume)
 
     if(filename == NULL)
     {
-        fprintf(stderr, "[%s: %d]Warning: filename NULL: %s\n", __FILE__, __LINE__, filename);
+        fprintf(stderr, "[%s: %d]Warning: filename: NULL\n", __FILE__, __LINE__);
         return NULL;
     }
 

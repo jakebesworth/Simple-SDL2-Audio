@@ -20,8 +20,8 @@ int main(void)
     SDL_Delay(1000);
 
     /* Override music, play another sound */
-    playMusic("music/road.wav", SDL_MIX_MAXVOLUME - 1);
-    SDL_Delay(5000);
+    playMusic("music/road.wav", SDL_MIX_MAXVOLUME);
+    SDL_Delay(1000);
 
     /* Pause audio test */
     pauseAudio();
@@ -39,7 +39,7 @@ int main(void)
 
     Audio * music = createAudio("music/highlands.wav", 1, SDL_MIX_MAXVOLUME);
     playMusicFromMemory(music, SDL_MIX_MAXVOLUME);
-    SDL_Delay(10000);
+    SDL_Delay(2000);
 
     /* End Simple-SDL2-Audio */
     endAudio();
